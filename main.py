@@ -1,47 +1,45 @@
 from io import BytesIO
+import src
 import json
 import numpy as np
-import neuralnet as nn
+import src.neuralnet as nn
 import random
-from png import makeGrayPNG
-import training_data
+import src.graphics as g
+import src.ppm
+import src.interpreter
+import src.renerer
+from src.gradients import gradient, normalize
+
 
 img_size = [256, 256]
 
-drw_model = nn.Network(
-    1,
+render_model = nn.Network(
+    src.interpreter.TEXT_VECTOR_LEN,
     [], 
-    nn.Activator(lambda x: nn.safe_sigmoid(x), lambda x: nn.safe_sigmoid(x)*(1-nn.safe_sigmoid(x)))
+    nn.Activator(lambda x: nn.relu(x), lambda x: nn.drelu(x))
 )
+render_model.use_bias = 0.0
+render_model.hidden = render_model.random_net(16, 8, 3*img_size[0]*img_size[1])
+#render_model.import_from_file("assets/draw_model.json")
+input = [random.random()]*src.interpreter.TEXT_VECTOR_LEN
+data, a = render_model.predict(input)
+#this is for rendering image
+data = data[len(data)-1]
+def render_data(data, file):
+    d = []
+    for i in range(int(len(data))):
+        d.append(int(data[i]*255))
+    src.ppm.create_image(img_size[0], img_size[1], d, file)
 
-int_model = nn.Network(
-    img_size[0]*img_size[1], 
-    [], 
-    nn.Activator(lambda x: nn.safe_sigmoid(x), lambda x: nn.safe_sigmoid(x)*(1-nn.safe_sigmoid(x)))
-)
+render_data(data, "img.ppm")
+grad = normalize(gradient(img_size[0], img_size[1], [0, 0, 40], [255, 255, 255], 0))
 
+render_model.backprop(grad, input, 0.1)
 
-drw_model.hidden = drw_model.random_net(16, 64, img_size[0]*img_size[1])
-#model.import_from_file("model.json")
-
-input = [random.random()]
-data = drw_model.predict(input)
-
+data, a = render_model.predict(input)
 
 #this is for rendering image
-data = data[0][len(data[0])-1]
-d = []
-r = 0
-row = []
-for i in range(len(data)):
-    if (i+1)%img_size[0] == 0:
-        d.append(row)
-        row = []
-        r += 1
-    else:
-        row.append(int(255*data[i]))
-print(r)
-with open("img.png","wb") as f:
-    f.write(makeGrayPNG(d, img_size[1], img_size[0]))
-
-#model.output_to_file("model.json")
+data = data[len(data)-1]
+print(data)
+render_data(data, "img1.ppm")
+render_model.output_to_file("assets/draw_model.json")

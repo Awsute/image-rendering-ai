@@ -15,11 +15,21 @@ import src.neuralnet as nn
 
 #This method converts a series of words into a vector that computers can understand.
 
+#TRAINING:
+#Word model:
+#Overall word vector should be approximately the negative vector of a word with opposite meaning.
+
+#Text model:
+#Get vector of a sentence with opposite meaning to the input and negate it. 
+#This is approximately the vector of the input sentence.
+
+
+
 
 VALID_CHARS = "1234567890abcdefghijklmnopqrstuvwxyz "
 
-WORD_VECTOR_LEN = 6
-TEXT_VECTOR_LEN = 12
+WORD_VECTOR_LEN = 9
+TEXT_VECTOR_LEN = 16
 
 
 def process_text(text):

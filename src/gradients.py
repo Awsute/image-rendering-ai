@@ -1,5 +1,7 @@
 import math
-def gradient(size_x, size_y, col1, col2, angle):
+def gradient(size, col1, col2, angle):
+    size_x = size[0]
+    size_y = size[1]
     cos = math.cos(math.radians(angle))
     sin = math.sin(math.radians(angle))
     cols = []
@@ -16,10 +18,10 @@ def gradient(size_x, size_y, col1, col2, angle):
     dgy = 2*dg/size_y*cos
     dby = 2*db/size_y*cos
     for i in range(size_y):
-        ty = i/(size_y-1)
+        ty = (i+1)/(size_y)
         c = col1.copy()
         for o in range(size_x):
-            tx = o/(size_x-1)
+            tx = (o+1)/(size_x)
             c[0] += tx*drx
             c[1] += tx*dgx
             c[2] += tx*dbx

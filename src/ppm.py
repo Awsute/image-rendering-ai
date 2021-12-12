@@ -1,8 +1,8 @@
 import array
 
 def create_image(size, data, file):
-    width = size[0]
-    height = size[1]
+    width = size
+    height = size
     PPMheader = 'P6\n' +str(width) + ' ' +str(height) + '\n255\n'
     # Create and fill a red PPM image
     image = array.array('B', data)

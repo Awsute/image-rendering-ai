@@ -1,5 +1,5 @@
-import src.neuralnet as nn
-
+from typing import Text
+import tensorflow as tf
 #how the interpreter is going to work
 
 #STEP 1: recursive nn
@@ -31,14 +31,39 @@ VALID_CHARS = "1234567890abcdefghijklmnopqrstuvwxyz "
 WORD_VECTOR_LEN = 9
 TEXT_VECTOR_LEN = 16
 
+def setup_word_model():
+    initializer = tf.keras.initializers.HeUniform()
+    a = [
+        tf.keras.layers.Input(shape=(WORD_VECTOR_LEN+1,)),
+    ]
+    
+    for i in range(4):
+        a.append(tf.keras.layers.Dense(12, activation='relu', kernel_initializer=initializer))
+    a.append(tf.keras.layers.Dense(WORD_VECTOR_LEN, activation='sigmoid', kernel_initializer=initializer))
+    model = tf.keras.Sequential(a)
+    return model
 
+def setup_text_model():
+
+    initializer = tf.keras.initializers.HeUniform()
+    a = [
+        tf.keras.layers.Input(shape=(WORD_VECTOR_LEN+TEXT_VECTOR_LEN,)),
+    ]
+    
+    for i in range(4):
+        a.append(tf.keras.layers.Dense(12, activation='relu', kernel_initializer=initializer))
+    a.append(tf.keras.layers.Dense(WORD_VECTOR_LEN, activation='sigmoid', kernel_initializer=initializer))
+    model = tf.keras.Sequential(a)
+    return model
+
+    return
 def process_text(text):
     text = text.lower()
     for i in text:
         if VALID_CHARS.find(i) < 0:
             text = text.replace(i, "")
     return text
-def vector_of_text(text : str, word_model : nn.Network, text_model : nn.Network):
+def vector_of_text(text : str, word_model : tf.keras.Model, text_model : tf.keras.Model):
     text = process_text(text)
     words = text.split(" ")
     vec_t = [0.0]*TEXT_VECTOR_LEN
@@ -47,7 +72,7 @@ def vector_of_text(text : str, word_model : nn.Network, text_model : nn.Network)
         for letter in word:
             input = vec_w
             input.append(float(ord(letter)))
-            n_v, a = word_model.predict(input)
+            n_v, a = word_model(input)
             vec_w = n_v[len(n_v)-1][:len(n_v[len(n_v)-1])-1]
         input = vec_t
         input.extend(vec_w)

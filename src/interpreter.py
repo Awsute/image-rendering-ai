@@ -1,5 +1,6 @@
 from typing import Text
 import tensorflow as tf
+import numpy as np
 #how the interpreter is going to work
 
 #STEP 1: recursive nn
@@ -52,11 +53,10 @@ def setup_text_model():
     
     for i in range(4):
         a.append(tf.keras.layers.Dense(12, activation='relu', kernel_initializer=initializer))
-    a.append(tf.keras.layers.Dense(WORD_VECTOR_LEN, activation='sigmoid', kernel_initializer=initializer))
+    a.append(tf.keras.layers.Dense(TEXT_VECTOR_LEN, activation='sigmoid', kernel_initializer=initializer))
     model = tf.keras.Sequential(a)
     return model
 
-    return
 def process_text(text):
     text = text.lower()
     for i in text:
@@ -72,12 +72,14 @@ def vector_of_text(text : str, word_model : tf.keras.Model, text_model : tf.kera
         for letter in word:
             input = vec_w
             input.append(float(ord(letter)))
-            n_v, a = word_model(input)
-            vec_w = n_v[len(n_v)-1][:len(n_v[len(n_v)-1])-1]
+            n_v, a = word_model(np.array([input])).numpy()[0]
+            lnv = len(n_v)-1
+            vec_w = n_v[lnv][:len(n_v[lnv])-1]
         input = vec_t
         input.extend(vec_w)
-        n_v, a = text_model.predict(input)
-        vec_t = n_v[len(n_v)-1][:len(n_v[len(n_v)-1])-WORD_VECTOR_LEN]
+        n_v, a = text_model(np.array([input])   ).numpy()[0]
+        lnv = len(n_v)-1
+        vec_t = n_v[lnv][:len(n_v[lnv])-WORD_VECTOR_LEN]
     return vec_t
 
 

@@ -32,7 +32,7 @@ def setup_renderer_secondary():
         tf.keras.layers.Input(shape=(i_shape,)),
     ]
     
-    for i in range(8):
+    for i in range(4):
         a.append(tf.keras.layers.Dense(16, activation='relu', kernel_initializer=initializer))
     a.append(tf.keras.layers.Dense(3*IMG_SIZE_FINAL**2, activation='sigmoid', kernel_initializer=initializer))
     model = tf.keras.Sequential(a)
